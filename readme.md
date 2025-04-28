@@ -1,4 +1,4 @@
-# Настройка окружения для отладки
+# Настройка окружения для отладки Java + Tomcat
 1. Перейти на сайт [Java 21 Downloads](https://www.oracle.com/java/technologies/downloads/?er=221886#jdk21-windows)
 и скачать `Installer` или архив. 
 Установить и запомнить директорию установки.
