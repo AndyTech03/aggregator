@@ -15,7 +15,6 @@
 	<name>aggregator</name>
 	<description>News aggregator</description>
 	<properties>
-		<start-class>ru/esstu/news/aggregator/AggregatorApplication.java</start-class>
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
