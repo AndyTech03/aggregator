@@ -20,7 +20,7 @@ if (Test-Path $aggregator) {
     Remove-Item $aggregator -Force -Recurse
 }
 if (Test-Path "$aggregator.war") {
-Remove-Item "$aggregator.war"
+    Remove-Item "$aggregator.war"
 }
 Copy-Item .\target\aggregator-0.0.1-SNAPSHOT.war "$aggregator.war"
 catalina start

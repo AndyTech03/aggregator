@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Start Spring" type="MavenRunConfiguration" factoryName="Maven">
+  <configuration default="false" name="Start Spring API" type="MavenRunConfiguration" factoryName="Maven">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -11,13 +11,17 @@
           </option>
           <option name="goals">
             <list>
+              <option value="clean" />
+              <option value="install" />
               <option value="spring-boot:start" />
             </list>
           </option>
           <option name="multimoduleDir" />
           <option name="pomFileName" />
           <option name="profilesMap">
-            <map />
+            <map>
+              <entry key="api" value="true" />
+            </map>
           </option>
           <option name="projectsCmdOptionValues">
             <list />

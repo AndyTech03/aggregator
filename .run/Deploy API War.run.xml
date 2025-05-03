@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Deploy War" type="ShConfigurationType">
+  <configuration default="false" name="Deploy API War" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="mvn clean package;rm $env:CATALINA_HOME\webapps\aggregator.war;rm $env:CATALINA_HOME\webapps\aggregator -Force -Recurse;cp .\target\aggregator-0.0.1-SNAPSHOT.war $env:CATALINA_HOME\webapps\aggregator.war;catalina start" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
-    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/.run/deploy.ps1" />
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/.run/deployApi.ps1" />
     <option name="SCRIPT_OPTIONS" value="" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
     <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
