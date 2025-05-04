@@ -2,7 +2,6 @@ package ru.esstu.news.aggregator;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +22,9 @@ import ru.esstu.news.aggregator.parser.RssParser;
 import ru.esstu.news.aggregator.parser.SubscribeRuParser;
 
 @RestController
-@SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
+@SpringBootApplication(exclude = {
+        ErrorMvcAutoConfiguration.class
+})
 public class AggregatorApplication extends SpringBootServletInitializer implements ApplicationContextAware {
     public static void main(String[] args) {
         SpringApplication.run(AggregatorApplication.class, args);
@@ -68,21 +69,23 @@ public class AggregatorApplication extends SpringBootServletInitializer implemen
         };
     }
 
-    @Bean
-    @Profile("parser")
-    public CommandLineRunner parserRunnerBean(SubscribeRuParser subscribeRuParser, RssParser rssParser) {
-        return (args) -> {
-            System.err.println("Parser Started...");
-
-            System.out.println("args");
-            for (String arg : args) {
-                System.out.println(arg);
-            }
-//            subscribeRuParser.parseRssFeeds();
-            rssParser.parseRssFeed("https://aif.ru/rss/all.php");
-            SpringApplication.exit(context);
-        };
-    }
+//    @Bean
+//    @Profile("parser")
+//    public CommandLineRunner parserRunnerBean(SubscribeRuParser subscribeRuParser, RssParser rssParser) {
+//        return (args) -> {
+//            System.err.println("Parser Started...");
+//
+//            System.out.println("args");
+//            for (String arg : args) {
+//                System.out.println(arg);
+//            }
+////            subscribeRuParser.parseRssFeeds();
+////            rssParser.parseRssFeed("https://aif.ru/rss/all.php");
+//            rssParser.parseAllRssFeeds(subscribeRuParser);
+////            SpringApplication.exit(context);
+//            System.exit(0);
+//        };
+//    }
     @PreDestroy
     public void onDestroy()
             throws Exception {

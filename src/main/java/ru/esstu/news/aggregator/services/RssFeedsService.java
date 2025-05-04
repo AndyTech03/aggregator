@@ -16,6 +16,12 @@ public class RssFeedsService {
     @Autowired
     private RssFeedsRepo rssRepo;
 
+
+    @Transactional
+    public List<RssFeed> findAll() {
+        return rssRepo.findAll();
+    }
+
     /**
      * Проверяет наличие похожих записей по ненулевым полям.
      * Если записей нет — сохраняет новую.

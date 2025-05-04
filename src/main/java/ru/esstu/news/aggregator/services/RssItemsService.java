@@ -1,20 +1,45 @@
 package ru.esstu.news.aggregator.services;
 
 import jakarta.transaction.Transactional;
+import org.springframework.ai.document.MetadataMode;
+import org.springframework.ai.embedding.EmbeddingRequest;
+import org.springframework.ai.embedding.EmbeddingResponse;
+import org.springframework.ai.openai.OpenAiEmbeddingModel;
+import org.springframework.ai.openai.OpenAiEmbeddingOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.retry.RetryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
-import ru.esstu.news.aggregator.models.RssFeed;
 import ru.esstu.news.aggregator.models.RssItem;
 import ru.esstu.news.aggregator.repos.RssItemsRepo;
+import ru.esstu.news.aggregator.repos.dto.RssItem_IdParsedDate_Dto;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RssItemsService {
-    @Autowired
+//    OpenAiApi openAiApi;
+//    OpenAiEmbeddingModel embeddingModel;
     RssItemsRepo rssItemsRepo;
+
+    @Autowired
+    public RssItemsService(RssItemsRepo rssItemsRepo) {
+//        String api_key = System.getenv("SPRING_AI_OPENAI_API_KEY");
+////        System.out.println("api_key" + api_key);
+//        this.openAiApi = OpenAiApi.builder()
+//                .apiKey(api_key)
+//                .build();
+//        this.embeddingModel = new OpenAiEmbeddingModel(
+//                this.openAiApi,
+//                MetadataMode.EMBED,
+//                OpenAiEmbeddingOptions.builder()
+//                        .model("text-embedding-3-small")
+//                        .user("user-6")
+//                        .build(),
+//                RetryUtils.DEFAULT_RETRY_TEMPLATE);
+        this.rssItemsRepo = rssItemsRepo;
+    }
 
     /**
      * Проверяет наличие похожих записей по ненулевым полям.
@@ -24,21 +49,41 @@ public class RssItemsService {
      */
     @Transactional
     public Optional<RssItem> saveOrUpdate(RssItem rssItem) {
-        List<UUID> ids = rssItemsRepo.findMatchingIds(
+        List<RssItem_IdParsedDate_Dto> matchingItems = rssItemsRepo.findMatchingItems(
                 rssItem.getUri(),
                 rssItem.getFeedUrl()
         );
-        if (ids.isEmpty()) {
+        Date now = new Date(System.currentTimeMillis());
+//        List<String> keywords = new ArrayList<>(List.of(
+//                rssItem.getTitle(),
+//                rssItem.getDescription(),
+//                rssItem.getAuthor()
+//        ));
+//        keywords.addAll(rssItem.getCategories());
+//        EmbeddingResponse embeddingResponse = embeddingModel.embedForResponse(
+//                        List.of(keywords.toString())
+//        );
+//        System.out.println(embeddingResponse);
+//        float[] embedding = embeddingResponse.getResult().getOutput();
+//        rssItem.setEmbedding(embedding);
+        if (matchingItems.isEmpty()) {
             // Нет похожих — сохраняем
+            rssItem.setParsedDate(now);
             return Optional.of(rssItemsRepo.save(rssItem));
-        } else if (ids.size() == 1) {
+        } else if (matchingItems.size() == 1) {
             // Одна подходящая — обновляем
-            rssItem.setId(ids.get(0));
-            System.out.println("Updated " + rssItem);
+            var item = matchingItems.get(0);
+            System.out.println("Found: id="+ item.getId() +", parsedDate="+ item.getParsedDate());
+            rssItem.setId(item.getId());
+            rssItem.setParsedDate(item.getParsedDate());
+            if (rssItem.getParsedDate() == null)
+                rssItem.setParsedDate(now);
+
+            System.out.println("Updated id=" + rssItem.getId() + ", uri=" + rssItem.getUri());
             return Optional.of(rssItemsRepo.save(rssItem));
         } else {
             // Несколько совпадений — логируем ошибку
-            System.err.println("Error: найдено несколько записей RssItem по заданным параметрам: " + ids);
+            System.err.println("Error: founded more then one RssItem!: " + matchingItems);
             return Optional.empty();
         }
     }

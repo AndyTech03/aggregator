@@ -4,28 +4,32 @@ import jakarta.persistence.*;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
-@Table(name = "rss_items")
+@Table(
+        name = "rss_items"
+)
 public class RssItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(length = 1000)
     private String title;
-    @Column(length = 1000)
+    @Column(length = 50000)
     private String description;
     private String author;
     @Column(length = 1000)
     private String uri;
     @Column(length = 1000)
     private String feedUrl;
-    private Date date;
+    private Date publishedDate;
+    private Date parsedDate;
     private List<String> categories;
+    @Column(length = 2000)
+    private String categoriesFlat;
+    @Column(length = 2000)
+    private String descriptionFlat;
 
     public RssItem() {
     }
@@ -52,6 +56,7 @@ public class RssItem {
 
     public void setDescription(String description) {
         this.description = description;
+        this.descriptionFlat = description.length() > 2000 ? description.substring(0, 2000) : description;
     }
 
     public String getAuthor() {
@@ -78,12 +83,20 @@ public class RssItem {
         this.feedUrl = feedUrl;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getPublishedDate() {
+        return publishedDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setPublishedDate(Date publishedDate) {
+        this.publishedDate = publishedDate;
+    }
+
+    public Date getParsedDate() {
+        return parsedDate;
+    }
+
+    public void setParsedDate(Date parsedDate) {
+        this.parsedDate = parsedDate;
     }
 
     public List<String> getCategories() {
@@ -92,6 +105,7 @@ public class RssItem {
 
     public void setCategories(List<String> categories) {
         this.categories = categories;
+        this.categoriesFlat = categories.toString();
     }
 
     @Override
@@ -103,7 +117,8 @@ public class RssItem {
                 ", author='" + author + '\'' +
                 ", uri='" + uri + '\'' +
                 ", feedUrl='" + feedUrl + '\'' +
-                ", date=" + date +
+                ", publishedDate=" + publishedDate +
+                ", parsedDate=" + parsedDate +
                 ", categories=" + categories +
                 '}';
         try {

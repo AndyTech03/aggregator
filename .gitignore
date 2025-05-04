@@ -35,3 +35,5 @@ build/
 ### React ###
 react_app/node_modules
 src/main/resources/static/*
+
+.env
