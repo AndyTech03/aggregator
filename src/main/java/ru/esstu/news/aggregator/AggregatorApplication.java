@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import ru.esstu.news.aggregator.parser.RssParser;
 import ru.esstu.news.aggregator.parser.SubscribeRuParser;
 
 @RestController
@@ -69,7 +70,7 @@ public class AggregatorApplication extends SpringBootServletInitializer implemen
 
     @Bean
     @Profile("parser")
-    public CommandLineRunner parserRunnerBean(SubscribeRuParser subscribeRuParser) {
+    public CommandLineRunner parserRunnerBean(SubscribeRuParser subscribeRuParser, RssParser rssParser) {
         return (args) -> {
             System.err.println("Parser Started...");
 
@@ -77,7 +78,8 @@ public class AggregatorApplication extends SpringBootServletInitializer implemen
             for (String arg : args) {
                 System.out.println(arg);
             }
-            subscribeRuParser.parseRssFeeds();
+//            subscribeRuParser.parseRssFeeds();
+            rssParser.parseRssFeed("https://aif.ru/rss/all.php");
             SpringApplication.exit(context);
         };
     }

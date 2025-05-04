@@ -27,8 +27,8 @@ public class RssFeed {
     public RssFeed(String title, String detail, String channelHref, String rssHref) {
         this.title = title;
         this.detail = detail;
-        this.channelHref = channelHref;
-        this.rssHref = rssHref;
+        this.channelHref = channelHref.replaceAll("http://", "").replaceAll("https://", "");
+        this.rssHref = rssHref.replaceAll("http://", "").replaceAll("https://", "");;
         this.loaded = false;
     }
 
