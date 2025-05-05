@@ -56,7 +56,7 @@ public class RssItem {
 
     public void setDescription(String description) {
         this.description = description;
-        this.descriptionFlat = description.length() > 2000 ? description.substring(0, 2000) : description;
+        this.descriptionFlat = description != null && description.length() > 2000 ? description.substring(0, 2000) : description;
     }
 
     public String getAuthor() {

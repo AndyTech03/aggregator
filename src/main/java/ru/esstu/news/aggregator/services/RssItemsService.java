@@ -69,21 +69,22 @@ public class RssItemsService {
         if (matchingItems.isEmpty()) {
             // Нет похожих — сохраняем
             rssItem.setParsedDate(now);
-            return Optional.of(rssItemsRepo.save(rssItem));
+            var item = rssItemsRepo.save(rssItem);
+            System.out.println(">>> Inserted: id=" + rssItem.getId() + ", uri=" + rssItem.getUri());
+            return Optional.of(item);
         } else if (matchingItems.size() == 1) {
             // Одна подходящая — обновляем
             var item = matchingItems.get(0);
-            System.out.println("Found: id="+ item.getId() +", parsedDate="+ item.getParsedDate());
             rssItem.setId(item.getId());
             rssItem.setParsedDate(item.getParsedDate());
             if (rssItem.getParsedDate() == null)
                 rssItem.setParsedDate(now);
 
-            System.out.println("Updated id=" + rssItem.getId() + ", uri=" + rssItem.getUri());
+            System.out.println(">>> Updated id=" + rssItem.getId() + ", uri=" + rssItem.getUri());
             return Optional.of(rssItemsRepo.save(rssItem));
         } else {
             // Несколько совпадений — логируем ошибку
-            System.err.println("Error: founded more then one RssItem!: " + matchingItems);
+            System.err.println(">>> Error: founded more then one RssItem!: " + matchingItems);
             return Optional.empty();
         }
     }

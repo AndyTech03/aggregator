@@ -4,6 +4,7 @@ import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.ParsingFeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import org.jsoup.Connection;
@@ -17,13 +18,12 @@ import ru.esstu.news.aggregator.services.RssItemsService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import static ru.esstu.news.aggregator.utils.ConsoleEncodingFix.fixStringEncoding;
 
 
 @Component
@@ -38,16 +38,9 @@ public class RssParser {
         List<RssFeed> feeds = rssFeedsService.findAll();
         CountDownLatch latch = new CountDownLatch(feeds.size());
         for (RssFeed feed : feeds) {
-            try {
-                URL url = new URL("https://" + feed.getRssHref());
-                System.out.println("Parsing: "+ url);
-                Runnable task = parseRssFeed(url.toString(), latch);
-                new Thread(task).start();
-            } catch (MalformedURLException e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace(System.err);
-                latch.countDown();
-            }
+            String url = "https://" + feed.getRssHref();
+            Runnable task = parseRssFeed(url, latch);
+            new Thread(task).start();
         }
         try {
             latch.await();
@@ -58,15 +51,49 @@ public class RssParser {
 
     public Runnable parseRssFeed(String url, CountDownLatch latch) {
         return () -> {
-            parseRssFeed(url, 0);
+            try {
+                int attemptsCount = 5;
+                boolean failture = true;
+                for (int i = 0; i < attemptsCount; i ++) {
+                    boolean finished = parseRssFeed(url);
+                    if (finished) {
+                        failture = false;
+                        String log = fixStringEncoding(
+                                ">>> "+ url +" successfully finished. " +
+                                        "Awaiting "+ (latch.getCount() - 1) +" tasks."
+                        );
+                        System.out.println(log);
+                        break;
+                    }
+                }
+                if (failture) {
+                    String log = fixStringEncoding(
+                            ">>> "+ url +" no connection for "+ attemptsCount +" times! " +
+                                    "Awaiting "+ (latch.getCount() - 1) +" tasks."
+                    );
+                    System.err.println(log);
+                }
+            } catch (Exception e) {
+                String log = fixStringEncoding(
+                        ">>> "+ url +" finished with errors! "+
+                            "Awaiting "+ (latch.getCount() - 1) +" tasks.\n"+
+                        "\t"+ e +"\n"+
+//                        "\t"+ e.getMessage() +"\n"+
+                        "\t"+ String.join(
+                                "\n\t",
+                                Arrays.stream(e.getStackTrace())
+                                        .map(StackTraceElement::toString)
+                                        .toList())
+                );
+                System.err.println(log);
+            }
             latch.countDown();
-            System.out.println("counter: " + latch.getCount());
         };
     }
 
-    private void parseRssFeed(String url, int iteration) {
+    private boolean parseRssFeed(String url)
+            throws IOException, FeedException {
         String logEntry = "";
-        int count = 0;
         try {
             Connection.Response response = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0")
@@ -76,52 +103,35 @@ public class RssParser {
             try (XmlReader reader = new XmlReader(
                     response.bodyStream(), true, response.charset())) {
                 SyndFeed feed = new SyndFeedInput().build(reader);
-//                System.out.println(
-//                        new String(feed
-//                                .getTitle()
-//                                .getBytes(StandardCharsets.UTF_8), "windows-1251"));
                 for (SyndEntry entry : feed.getEntries()) {
-                    count++;
-                    logEntry =
-                            new String(entry
-                                    .toString()
-                                    .getBytes(StandardCharsets.UTF_8), "windows-1251");
-//                    System.out.println(
-//                            new String(entry
-//                            .getTitle()
-//                            .getBytes(StandardCharsets.UTF_8), "windows-1251"));
-                    RssItem item = new RssItem();
-                    item.setTitle(entry.getTitle());
-                    var description = entry.getDescription();
-                    item.setDescription(description != null ? description.getValue() : null);
-                    item.setAuthor(entry.getAuthor());
-                    item.setUri(entry.getLink());
-                    item.setFeedUrl(url);
-                    item.setPublishedDate(entry.getPublishedDate());
-                    item.setCategories(entry.getCategories().stream()
-                            .map(SyndCategory::getName).toList());
-                    logEntry += "\n" + rssItemsService.saveOrUpdate(item).toString();
+                    try {
+                        logEntry = entry.toString();
+                        RssItem item = new RssItem();
+                        var description = entry.getDescription();
+                        item.setTitle(entry.getTitle());
+                        item.setDescription(description != null ? description.getValue() : null);
+                        item.setAuthor(entry.getAuthor());
+                        item.setUri(entry.getLink());
+                        item.setFeedUrl(url);
+                        item.setPublishedDate(entry.getPublishedDate());
+                        item.setCategories(entry.getCategories().stream().map(SyndCategory::getName).toList());
+                        logEntry += "\n"+ rssItemsService.saveOrUpdate(item).toString();
+                    } catch (Exception e) {
+                        System.err.println(new String(logEntry
+                                .getBytes(StandardCharsets.UTF_8), "windows-1251"));
+                        throw e;
+                    }
                 }
-//                System.out.println("Done " + count);
+                return true;
             }
-        } catch (SocketTimeoutException e) {
-            if (iteration > 5) {
-                System.err.println("No connection with `"+ url +"` for "+ iteration +" times!!");
-            } else {
-                parseRssFeed(url, iteration + 1);
+        } catch (SocketTimeoutException ignored) {
+        } catch (ParsingFeedException e) {
+            ParsingFeedException err = e;
+            if (err.getMessage().contains("DOCTYPE is disallowed when the feature")) {
+                err = new ParsingFeedException("XML document expected, DOCTYPE received!");
             }
-        } catch (IOException | FeedException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace(System.err);
-        } catch (Exception e) {
-            System.err.println(logEntry);
-            String log = e.getMessage() + " " + Arrays.toString(e.getStackTrace());
-            try {
-                log = new String(log.getBytes(StandardCharsets.UTF_8), "windows-1251");
-            } catch (UnsupportedEncodingException ignored) {
-            }
-            System.err.println(log);
-            throw e;
+            throw err;
         }
+        return false;
     }
 }

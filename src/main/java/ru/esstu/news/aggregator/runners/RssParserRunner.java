@@ -9,7 +9,6 @@ import ru.esstu.news.aggregator.parser.SubscribeRuParser;
 @Component
 @Profile("parser") // активируется только если задан профиль
 public class RssParserRunner implements CommandLineRunner {
-
     private final SubscribeRuParser subscribeRuParser;
     private final RssParser rssParser;
 
