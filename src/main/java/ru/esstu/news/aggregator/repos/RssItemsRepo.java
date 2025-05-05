@@ -11,9 +11,8 @@ import java.util.UUID;
 
 public interface RssItemsRepo extends JpaRepository<RssItem, UUID> {
     @Query("SELECT i.id as id, i.parsedDate as parsedDate FROM RssItem i"
-            + " WHERE i.uri = :uri AND i.feedUrl = :feedUrl")
+            + " WHERE i.uri = :uri")
     List<RssItem_IdParsedDate_Dto> findMatchingItems(
-            @Param("uri") String uri,
-            @Param("feedUrl") String feedUrl
+            @Param("uri") String uri
     );
 }

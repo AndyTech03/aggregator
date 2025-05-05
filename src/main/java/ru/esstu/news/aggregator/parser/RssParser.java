@@ -16,6 +16,8 @@ import ru.esstu.news.aggregator.models.RssItem;
 import ru.esstu.news.aggregator.services.RssFeedsService;
 import ru.esstu.news.aggregator.services.RssItemsService;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
@@ -36,10 +38,14 @@ public class RssParser {
     public void parseAllRssFeeds(SubscribeRuParser parser) {
 //        parser.parseRssFeeds();
         List<RssFeed> feeds = rssFeedsService.findAll();
-        CountDownLatch latch = new CountDownLatch(feeds.size());
+        CountDownLatch latch = new CountDownLatch(feeds.size()*2);
         for (RssFeed feed : feeds) {
             String url = "https://" + feed.getRssHref();
             Runnable task = parseRssFeed(url, latch);
+            new Thread(task).start();
+
+            url = "http://" + feed.getRssHref();
+            task = parseRssFeed(url, latch);
             new Thread(task).start();
         }
         try {
@@ -96,10 +102,10 @@ public class RssParser {
         String logEntry = "";
         try {
             Connection.Response response = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0")
-                    .timeout(10000)
-                    .ignoreContentType(true)
-                    .execute();
+                        .userAgent("Mozilla/5.0")
+                        .timeout(10000)
+                        .ignoreContentType(true)
+                        .execute();
             try (XmlReader reader = new XmlReader(
                     response.bodyStream(), true, response.charset())) {
                 SyndFeed feed = new SyndFeedInput().build(reader);

@@ -50,8 +50,7 @@ public class RssItemsService {
     @Transactional
     public Optional<RssItem> saveOrUpdate(RssItem rssItem) {
         List<RssItem_IdParsedDate_Dto> matchingItems = rssItemsRepo.findMatchingItems(
-                rssItem.getUri(),
-                rssItem.getFeedUrl()
+                rssItem.getUri()
         );
         Date now = new Date(System.currentTimeMillis());
 //        List<String> keywords = new ArrayList<>(List.of(
@@ -84,7 +83,8 @@ public class RssItemsService {
             return Optional.of(rssItemsRepo.save(rssItem));
         } else {
             // Несколько совпадений — логируем ошибку
-            System.err.println(">>> Error: founded more then one RssItem!: " + matchingItems);
+            System.err.println(">>> Error: founded more then one RssItem!: " +
+                    matchingItems.stream().map(RssItem_IdParsedDate_Dto::getId));
             return Optional.empty();
         }
     }
