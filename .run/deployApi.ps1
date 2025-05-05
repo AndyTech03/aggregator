@@ -1,3 +1,4 @@
+${env:spring.profiles.active} = "api"
 # Сборка React
 $build = "react_app\build"
 if (Test-Path $build) {

@@ -1,6 +1,5 @@
-
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+ CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE INDEX IF NOT EXISTS idx_rss_items_title_trgm
     ON rss_items USING GIN (title gin_trgm_ops);
