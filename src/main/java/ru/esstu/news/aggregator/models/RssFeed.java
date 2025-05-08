@@ -30,7 +30,7 @@ public class RssFeed {
         if (channelHref != null)
             this.channelHref = channelHref.replaceAll("http://", "").replaceAll("https://", "");
         if (rssHref != null)
-            this.rssHref = rssHref.replaceAll("http://", "").replaceAll("https://", "");;
+            this.rssHref = rssHref.replaceAll("http://", "").replaceAll("https://", "");
         this.loaded = false;
     }
 

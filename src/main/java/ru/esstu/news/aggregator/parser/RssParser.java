@@ -16,10 +16,7 @@ import ru.esstu.news.aggregator.models.RssItem;
 import ru.esstu.news.aggregator.services.RssFeedsService;
 import ru.esstu.news.aggregator.services.RssItemsService;
 
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -30,13 +27,18 @@ import static ru.esstu.news.aggregator.utils.ConsoleEncodingFix.fixStringEncodin
 
 @Component
 public class RssParser {
+    private final RssFeedsService rssFeedsService;
+    private final RssItemsService rssItemsService;
+
     @Autowired
-    private RssFeedsService rssFeedsService;
-    @Autowired
-    private RssItemsService rssItemsService;
+    public RssParser(RssFeedsService rssFeedsService, RssItemsService rssItemsService) {
+        this.rssFeedsService = rssFeedsService;
+        this.rssItemsService = rssItemsService;
+    }
 
     public void parseAllRssFeeds(SubscribeRuParser parser) {
-//        parser.parseRssFeeds();
+        if (false)
+            parser.parseRssFeeds();
         List<RssFeed> feeds = rssFeedsService.findAll();
         CountDownLatch latch = new CountDownLatch(feeds.size()*2);
         for (RssFeed feed : feeds) {
@@ -59,11 +61,11 @@ public class RssParser {
         return () -> {
             try {
                 int attemptsCount = 5;
-                boolean failture = true;
+                boolean failure = true;
                 for (int i = 0; i < attemptsCount; i ++) {
                     boolean finished = parseRssFeed(url);
                     if (finished) {
-                        failture = false;
+                        failure = false;
                         String log = fixStringEncoding(
                                 ">>> "+ url +" successfully finished. " +
                                         "Awaiting "+ (latch.getCount() - 1) +" tasks."
@@ -72,7 +74,7 @@ public class RssParser {
                         break;
                     }
                 }
-                if (failture) {
+                if (failure) {
                     String log = fixStringEncoding(
                             ">>> "+ url +" no connection for "+ attemptsCount +" times! " +
                                     "Awaiting "+ (latch.getCount() - 1) +" tasks."

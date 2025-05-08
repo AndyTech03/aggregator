@@ -1,24 +1,28 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import routes from './routes';
 import './App.css';
+import NotFoundPage from './pages/NotFound';
+import HomePage from './pages/HomePage';
+import FeedPage from './pages/FeedPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+        <div className='App'>
+            <Routes>
+                {/* 
+                <Route path={urls[0].value} element={<GroupsTimetable />} />
+                <Route path={urls[1].value} element={<TeachersTimetable />} />
+                <Route path={urls[2].value} element={<AudiencesTimetable />} />
+                <Route path={urls[3].value} element={<SubjectsTimetable />} />
+                */}
+                <Route path={routes.FEED_PAGE} element={<FeedPage />} /> {/* Feed */}
+                <Route path={routes.HOME_PAGE} element={<HomePage />} /> {/* Home */}
+                <Route path="*" element={<NotFoundPage />} /> {/* Fallback */}
+            </Routes>
+        </div>
+    </Router>
   );
 }
 

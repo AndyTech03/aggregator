@@ -1,13 +1,13 @@
 package ru.esstu.news.aggregator.services;
 
 import jakarta.transaction.Transactional;
-import org.springframework.ai.document.MetadataMode;
-import org.springframework.ai.embedding.EmbeddingRequest;
-import org.springframework.ai.embedding.EmbeddingResponse;
-import org.springframework.ai.openai.OpenAiEmbeddingModel;
-import org.springframework.ai.openai.OpenAiEmbeddingOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.retry.RetryUtils;
+//import org.springframework.ai.document.MetadataMode;
+//import org.springframework.ai.embedding.EmbeddingRequest;
+//import org.springframework.ai.embedding.EmbeddingResponse;
+//import org.springframework.ai.openai.OpenAiEmbeddingModel;
+//import org.springframework.ai.openai.OpenAiEmbeddingOptions;
+//import org.springframework.ai.openai.api.OpenAiApi;
+//import org.springframework.ai.retry.RetryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
