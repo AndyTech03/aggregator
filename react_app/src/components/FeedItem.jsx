@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import AddOrDelButton from "./AddOrDelButton";
-// import routes from "../routes";
+import routes from "../routes";
 
-function FeedItem({ filter, item, ...props }) {
+function FeedItem({ filter, item, saveFeedState, ...props }) {
 	const date = new Date(item.date)
 	const originUri = item.uri
 	const author = item.author
@@ -14,26 +14,34 @@ function FeedItem({ filter, item, ...props }) {
 			<span>
 				{item.title}
 				[
-					<Link to={originUri} onClick={() => alert('click')}>открыть</Link>
+					<Link to={routes.ARTICLE_PAGE.replace(':id', item.id)} 
+					onClick={() => {saveFeedState(); alert('click')}}>читать</Link>|
+					<Link to={originUri} 
+					onClick={() => {saveFeedState(); alert('click')}}>открыть</Link>
 				]
 			</span>
 			<div>
 				{item.categories.map((category, key) => 
 					<span key={key}>
 						<b>#{category}</b>
-						<AddOrDelButton item={category} itemsArray={filter.categories}/>
+						{filter &&
+							<AddOrDelButton item={category} itemsArray={filter.categories}/>
+						}
 					</span>
 				)}
 			</div>
-			<p dangerouslySetInnerHTML={{__html: item.description}}/>
 			<span>
 				<b>@{author}</b>
-				<AddOrDelButton item={author} itemsArray={filter.authors}/>
+				{filter &&
+					<AddOrDelButton item={author} itemsArray={filter.authors}/>
+				}
 				<br />
 				{date.toLocaleString()}
 				<br />
 				{feedUrl}
-				<AddOrDelButton item={feedUrl} itemsArray={filter.rssFeeds}/>
+				{filter &&
+					<AddOrDelButton item={feedUrl} itemsArray={filter.rssFeeds}/>
+				}
 			</span>
 		</div>
 	 );

@@ -1,23 +1,13 @@
-import React, { useEffect, useState } from "react"
-import Cookies from 'js-cookie';
+import React, { useEffect } from "react"
+import useValue from "./useValue";
 
-export default function useArray(cookiesName=false) {
-	const [items, setItems] = useState([])
-	const [loading, setLoading] = useState(true)
+
+export default function useArray(cookiesName=false, defaultValue=[]) {
+	const [items, setItems] = useValue(cookiesName, defaultValue)
 	useEffect(() => {
-		if (cookiesName === false)
-			return;
-		const arrayItems = Cookies.get(cookiesName)
-		if (arrayItems == null)
-			return;
-		setItems(JSON.parse(arrayItems))
-		setLoading(false)
-	}, [cookiesName, setLoading])
-	useEffect(() => {
-		if (cookiesName === false || loading)
-			return;
-		Cookies.set(cookiesName, JSON.stringify(items))
-	}, [items, loading, cookiesName])
+		if (items == null)
+			setItems([])
+	}, [items])
 	const addItem = (item) => {
 		setItems(prev => [item, ...prev])
 	}
