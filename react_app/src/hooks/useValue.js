@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react"
 import Cookies from 'js-cookie';
 import assert from "../utils/assert"
 
-export default function useValue(cookiesName=false, defaultValue=null, useStorage=false) {
+export default function useValue({
+	cookiesName=false, defaultValue=null, 
+	useStorage=false, global=false}) {
+	if (global == false) {
+		const href = window.location.href
+		cookiesName = `<value>${href}_${cookiesName}</value>`
+	} else {
+		cookiesName = `<value>GLOBAL_${cookiesName}</value>`
+	}
 	const [value, setValue] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const save = (data) => {
@@ -62,4 +70,24 @@ export default function useValue(cookiesName=false, defaultValue=null, useStorag
 	}, [cookiesName, loading, value])
 
 	return [value, setValueOrDefault, save]
+}
+
+const valueRegex = /(%3C|<)value(%3E|>)(?!GLOBAL).*?(%3C|<)(%2F|\/)value(%3E|>).*?(; |$)/gm
+export function clearValuesStorage() {
+	const len = sessionStorage.length;
+	for (let i = len - 1; i >= 0; i--) {
+		const key = sessionStorage.key(i)
+		console.log(i, key);
+		if (key.match(valueRegex) != null) {
+			sessionStorage.removeItem(key)
+			console.log('deleted');
+		}
+	}
+}
+export function clearAllStorage() {
+	sessionStorage.clear()
+}
+
+export function clearValuesCookies() {
+	document.cookie = document.cookie.replaceAll(valueRegex, '')
 }

@@ -10,14 +10,18 @@ import { UserContext } from './contexts/UserContext';
 import NotFoundPage from './pages/NotFound';
 
 import HomePage from './pages/HomePage';
-import FeedPage from './pages/FeedPage';
 import LoginPage from './pages/LoginPage';
 import useValue from './hooks/useValue';
 import ArticlePage from './pages/ArticlePage';
+import SearchPage from './pages/SearchPage';
+import FeedPage from './pages/FeedPage';
 
 
 function App() {
-  const [userId, setUserId] = useValue('userId')
+  const [userId, setUserId] = useValue({
+    cookiesName: 'userId', 
+    global: true,
+  })
   const [profile, setProfile] = useState('all')
 
   const logInUser = (login, password) => {
@@ -30,15 +34,10 @@ function App() {
       <UserContext.Provider value={{userId, profile, setProfile}}>
         <div className='App'>
           <Routes>
-              {/* 
-              <Route path={urls[0].value} element={<GroupsTimetable />} />
-              <Route path={urls[1].value} element={<TeachersTimetable />} />
-              <Route path={urls[2].value} element={<AudiencesTimetable />} />
-              <Route path={urls[3].value} element={<SubjectsTimetable />} />
-              */}
               <Route path={routes.LOGIN_PAGE} element={<LoginPage logInUser={logInUser} />} /> {/* Login */}
-              <Route path={routes.ARTICLE_PAGE} element={<ArticlePage />} /> {/* Article */}
+              <Route path={routes.SEARCH_PAGE} element={<SearchPage />} /> {/* Search */}
               <Route path={routes.FEED_PAGE} element={<FeedPage />} /> {/* Feed */}
+              <Route path={routes.ARTICLE_PAGE} element={<ArticlePage />} /> {/* Article */}
               <Route path={routes.HOME_PAGE} element={<HomePage />} /> {/* Home */}
               <Route path="*" element={<NotFoundPage />} /> {/* Fallback */}
           </Routes>

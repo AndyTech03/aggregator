@@ -3,16 +3,38 @@ import fetchArticle from "../api/fetchArticle"
 import NotFoundPage from "./NotFound"
 import { Link, useParams } from "react-router-dom"
 import AddOrDelButton from "../components/AddOrDelButton"
+import useArray from "../hooks/useArray"
+import NewsFeed from "../components/NewsFeed"
 
-function ArticlePage({...props}) {
+function ArticlePage({ ...props }) {
+	const similarCount = 10;
 	const params = useParams()
+	const newsId = params?.id
 	console.log(params);
-	
 	const [item, setItem] = useState(null)
 	const [state, setState] = useState('loading')
-	const filter = null
+
+	const categoriesFilter = useArray({
+		cookiesName: 'categoriesFilter',
+		defaultValue: [],
+		useStorage: true,
+		global: true,
+	})
+	const authorsFilter = useArray({
+		cookiesName: 'authorsFilter',
+		defaultValue: [],
+		useStorage: true,
+		global: true,
+	})
+	const rssFeedsFilter = useArray({
+		cookiesName: 'rssFeedsFilter',
+		defaultValue: [],
+		useStorage: true,
+		global: true,
+	})
+	
 	useEffect(() => {
-		fetchArticle(params.id)
+		fetchArticle(newsId)
 		.then(found => {
 			if (found == null) {
 				setState('notFound')
@@ -51,27 +73,29 @@ function ArticlePage({...props}) {
 				{item.categories.map((category, key) => 
 					<span key={key}>
 						<b>#{category}</b>
-						{filter &&
-							<AddOrDelButton item={category} itemsArray={filter.categories}/>
+						{categoriesFilter != null &&
+							<AddOrDelButton item={category} itemsArray={categoriesFilter}/>
 						}
-						
 					</span>
 				)}
 			</div>
 			<p dangerouslySetInnerHTML={{__html: item.description}}/>
 			<span>
 				<b>@{author}</b>
-				{filter &&
-					<AddOrDelButton item={author} itemsArray={filter.authors}/>
+				{authorsFilter != null &&
+					<AddOrDelButton item={author} itemsArray={authorsFilter}/>
 				}
 				<br />
 				{date.toLocaleString()}
 				<br />
 				{feedUrl}
-				{filter &&
-					<AddOrDelButton item={feedUrl} itemsArray={filter.rssFeeds}/>
+				{rssFeedsFilter != null &&
+					<AddOrDelButton item={feedUrl} itemsArray={rssFeedsFilter}/>
 				}
 			</span>
+			<hr />
+			<br />
+			<NewsFeed title="Похожие Новости" pageSize={similarCount} similar={newsId} />
 		</div>
 	 );
 }

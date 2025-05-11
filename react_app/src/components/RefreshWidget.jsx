@@ -1,10 +1,27 @@
 import React from "react";
 
 
-function RefreshWidget({ refresh, ...props }) {
+function RefreshWidget({ reset, goTop, goBottom, ...props }) {
 	return ( 
 		<div {...props} style={{position: 'fixed', bottom: '1em', left: '1em'}}>
-			<button onClick={() => refresh()}>Refresh</button>
+			{goTop != null &&
+				<>
+					<button onClick={() => goTop()}>Scroll Top</button>
+					<br />
+				</>
+			}
+			{reset != null &&
+				<>
+					<button onClick={() => reset()}>Reset</button>
+					<br />
+				</>
+			}
+			{goBottom != null &&
+				<>
+					<button onClick={() => goBottom()}>Scroll Bottom</button>
+					<br />
+				</>
+			}
 		</div>
 	);
 }

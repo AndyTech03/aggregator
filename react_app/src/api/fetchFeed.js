@@ -16,7 +16,7 @@ for (let i = 0; i < 100; i++) {
 	})
 }
 
-export default async function fetchFeed(offset, count, profile) {
+export default async function fetchFeed(offset, count) {
 	console.log({offset, count})
 	return items.slice(offset, offset+count);
 }
