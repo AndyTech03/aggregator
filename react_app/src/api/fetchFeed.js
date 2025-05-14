@@ -1,22 +1,22 @@
-const items = []
-for (let i = 0; i < 100; i++) {
-	items.push({
-		id: i.toString(),
-		author: "Сетевое издание UG.RU",
-		categories: [
-			"Новости",
-			"Образование UG.RU",
-			"Учитель года",
-			"Мурманская область",
-		],
-		title: "В Мурманской области объявили победителя конкурса «Учитель года – 2025»",
-		feedUrl: "http://www.ug.ru/rss",
-		date: "2025-04-20 15:01:11",
-		uri: "https://ug.ru/v-murmanskoj-oblasti-obyavili-pobeditelya-konkursa-uchitel-goda-2025/"
-	})
-}
+import { newsArray, likesArray, viewsArray } from "./faker/news";
 
-export default async function fetchFeed(offset, count) {
-	console.log({offset, count})
-	return items.slice(offset, offset+count);
+export default async function fetchFeed(offset, count, similarId) {
+	return newsArray
+	.filter(i => i.id != similarId)
+	.map((news) => {
+		return {
+			id: news.id,
+			title: news.title,
+			likes: likesArray.filter(i => i.newsId == news.id).length,
+			views: viewsArray.filter(i => i.newsId == news.id).length,
+		}
+	})
+	.sort((a, b) => b.views - a.views || b.likes - a.likes)
+	.slice(offset, offset+count)
+	.map((news) => {
+		return {
+			id: news.id,
+			title: news.title,
+		}
+	})
 }

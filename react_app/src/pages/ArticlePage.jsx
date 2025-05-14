@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import fetchArticle from "../api/fetchArticle"
 import NotFoundPage from "./NotFound"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useNavigation, useParams } from "react-router-dom"
 import AddOrDelButton from "../components/AddOrDelButton"
 import useArray from "../hooks/useArray"
 import NewsFeed from "../components/NewsFeed"
@@ -10,7 +10,7 @@ function ArticlePage({ ...props }) {
 	const similarCount = 10;
 	const params = useParams()
 	const newsId = params?.id
-	console.log(params);
+	const navigate = useNavigate()
 	const [item, setItem] = useState(null)
 	const [state, setState] = useState('loading')
 
@@ -36,7 +36,7 @@ function ArticlePage({ ...props }) {
 	useEffect(() => {
 		fetchArticle(newsId)
 		.then(found => {
-			if (found == null) {
+			if (found?.news == null) {
 				setState('notFound')
 				return
 			}
@@ -55,47 +55,48 @@ function ArticlePage({ ...props }) {
 			</div>
 		)
 	}
-
-	const date = new Date(item.date)
-	const originUri = item.uri
-	const author = item.author
-	const feedUrl = item.feedUrl
+	const news = item.news;
+	const date = new Date(news.date)
+	const originUri = news.uri
+	const author = news.author
+	const rssFeed = news.rssFeed
 	return ( 
 		<div {...props}>
+			<button onClick={() => navigate(-1)}>Back</button>
 			<hr />
 			<span>
-				{item.title}
+				{news.title}
 				[
 					<Link to={originUri} onClick={() => alert('click')}>открыть</Link>
 				]
 			</span>
 			<div>
-				{item.categories.map((category, key) => 
+				{news.categories.map((category, key) => 
 					<span key={key}>
-						<b>#{category}</b>
+						<b>#{category.title}</b>
 						{categoriesFilter != null &&
-							<AddOrDelButton item={category} itemsArray={categoriesFilter}/>
+							<AddOrDelButton item={category.id} itemsArray={categoriesFilter}/>
 						}
 					</span>
 				)}
 			</div>
-			<p dangerouslySetInnerHTML={{__html: item.description}}/>
+			<p dangerouslySetInnerHTML={{__html: news.description}}/>
 			<span>
-				<b>@{author}</b>
+				<b>@{author.username}</b>
 				{authorsFilter != null &&
-					<AddOrDelButton item={author} itemsArray={authorsFilter}/>
+					<AddOrDelButton item={author.id} itemsArray={authorsFilter}/>
 				}
 				<br />
 				{date.toLocaleString()}
 				<br />
-				{feedUrl}
+				{rssFeed.title}
 				{rssFeedsFilter != null &&
-					<AddOrDelButton item={feedUrl} itemsArray={rssFeedsFilter}/>
+					<AddOrDelButton item={rssFeed.id} itemsArray={rssFeedsFilter}/>
 				}
 			</span>
 			<hr />
 			<br />
-			<NewsFeed title="Похожие Новости" pageSize={similarCount} similar={newsId} />
+			<NewsFeed title="Похожие Новости" pageSize={similarCount} similarId={newsId} />
 		</div>
 	 );
 }

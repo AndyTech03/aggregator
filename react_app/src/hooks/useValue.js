@@ -20,7 +20,6 @@ export default function useValue({
 		} else {
 			Cookies.set(cookiesName, json)
 		}
-		console.log('saved', data);
 	}
 	const load = () => {
 		if (useStorage) {
@@ -33,10 +32,8 @@ export default function useValue({
 	const setValueOrDefault = (data) => {
 		if (data == null) {
 			setValue(defaultValue)
-			console.log('set default', defaultValue);
 		} else {
 			setValue(data)
-			console.log('set', data);
 		}
 	}
 
@@ -48,10 +45,9 @@ export default function useValue({
 				const data = load()
 				assert(data != null, 'data is null')
 				const parsed = JSON.parse(data)
-				console.log('loaded', parsed)
 				return parsed
 			} catch (e) {
-				console.log(e, 'using default', defaultValue);
+				console.error(e, 'using default', defaultValue);
 				return defaultValue
 			} finally {
 				setLoading(false)
@@ -65,7 +61,7 @@ export default function useValue({
 			assert(loading != true, 'loading is true')
 			save(value)
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 		}
 	}, [cookiesName, loading, value])
 
@@ -77,10 +73,8 @@ export function clearValuesStorage() {
 	const len = sessionStorage.length;
 	for (let i = len - 1; i >= 0; i--) {
 		const key = sessionStorage.key(i)
-		console.log(i, key);
 		if (key.match(valueRegex) != null) {
 			sessionStorage.removeItem(key)
-			console.log('deleted');
 		}
 	}
 }

@@ -4,7 +4,7 @@ import RefreshWidget from "./RefreshWidget";
 import useValue from "../hooks/useValue";
 import fetchFeed from "../api/fetchFeed";
 
-function NewsFeed({ title='Новости', pageSize, query, profile, similar, ...props }) {
+function NewsFeed({ title='Новости', pageSize, query, profile, similarId, ...props }) {
 	const titleRef = useRef(null)
 	const bottomRef = useRef(null)
 	const [feedItems, setFeedItems] = useState([]);
@@ -16,10 +16,13 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similar, .
 		defaultValue: {offset: 0, scrollY: 0, items: []}, 
 		useStorage: true,
 	})
+	const [loading, setLoading] = useState(true)
 	
 	const getFeed = (loadOffset=null) => {
-		return fetchFeed(loadOffset == null ? offset : loadOffset, pageSize)
+		setLoading(true)
+		return fetchFeed(loadOffset == null ? offset : loadOffset, pageSize, similarId)
 		.then(newItems => {
+			setLoading(false)
 			if (newItems.length == 0) {
 				setHasMore(false)
 				return [];
@@ -31,7 +34,6 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similar, .
 		scrollTo(0)
 		getFeed(0)
 		.then((newFeed) => {
-			console.log('init', newFeed);
 			setFeedItems(newFeed)
 			setOffset(pageSize)
 		})
@@ -80,24 +82,21 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similar, .
 	}, [scrollY])
 
 	useEffect(() => {
-		console.log('feedState', feedState);
 		if (feedState?.items != null) {
-			console.log('set items');
 			if (feedState.items.length == 0)
 				init()
 			else {
 				setFeedItems(feedState.items)
+				setLoading(false)
 			}
 		}
 		if (feedState?.offset != null) {
-			console.log('set offset');
 			setOffset(feedState.offset)
 		}
 		if (feedState?.scrollY != null) {
-			console.log('set scrollY');
 			setScrollY(feedState.scrollY)
 		}
-	}, [feedState, pageSize, query, profile, similar])
+	}, [feedState, pageSize, query, profile, similarId])
 
 	return ( 
 		<div {...props}>
@@ -106,8 +105,20 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similar, .
 			{feedItems.map((item, idx) =>
 				<FeedItem item={item} key={item.id || idx} saveFeedState={save} />
 			)}
-			{hasMore && 
-				<button onClick={next}>Next</button>
+					<hr />
+			{loading ?
+				<>
+					<p>Loading...</p>
+				</> :
+				<>
+					{hasMore && 
+						<button 
+							onClick={() => {setLoading(true); setTimeout(next, 1000)}}
+						>
+							Next
+						</button>
+					}
+				</>
 			}
 			<div ref={bottomRef} />
 		</div>
