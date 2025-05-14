@@ -3,8 +3,12 @@ import Cookies from 'js-cookie';
 import assert from "../utils/assert"
 
 export default function useValue({
-	cookiesName=false, defaultValue=null, 
-	useStorage=false, global=false}) {
+	cookiesName=false, 
+	defaultValue=null, 
+	useStorage=false, 
+	global=false,
+	disabled=false
+}) {
 	if (global == false) {
 		const href = window.location.href
 		cookiesName = `<value>${href}_${cookiesName}</value>`
@@ -14,6 +18,8 @@ export default function useValue({
 	const [value, setValue] = useState(null)
 	const [loading, setLoading] = useState(true)
 	const save = (data) => {
+		if (disabled)
+			throw new Error(`${cookiesName} disabled now!`)
 		const json = JSON.stringify(data)
 		if (useStorage) {
 			sessionStorage.setItem(cookiesName, json)
@@ -22,6 +28,8 @@ export default function useValue({
 		}
 	}
 	const load = () => {
+		if (disabled)
+			throw new Error(`${cookiesName} disabled now!`)
 		if (useStorage) {
 			return sessionStorage.getItem(cookiesName)
 		} else {
@@ -30,6 +38,8 @@ export default function useValue({
 	}
 
 	const setValueOrDefault = (data) => {
+		if (disabled)
+			throw new Error(`${cookiesName} disabled now!`)
 		if (data == null) {
 			setValue(defaultValue)
 		} else {
@@ -38,6 +48,8 @@ export default function useValue({
 	}
 
 	useEffect(() => {
+		if (disabled)
+			return;
 		setValue(prev => {
 			try {
 				assert(cookiesName != false, 'cookiesName is false')
@@ -56,6 +68,8 @@ export default function useValue({
 	}, [cookiesName, setValue, setLoading])
 
 	useEffect(() => {
+		if (disabled)
+			return
 		try {
 			assert(cookiesName != false, 'cookiesName is false')
 			assert(loading != true, 'loading is true')

@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FeedItem from "./FeedItem";
 import RefreshWidget from "./RefreshWidget";
 import useValue from "../hooks/useValue";
-import { fetchLatest } from "../api/rssItemsController";
+import { getLatest, getSimilar } from "../api/rssItemsController";
 
-function NewsFeed({ title='Новости', pageSize: limit, query, profile, similarId, ...props }) {
+function NewsFeed({ title='Новости', pageSize: limit, query, profile, similarId=null, ...props }) {
 	const titleRef = useRef(null)
 	const bottomRef = useRef(null)
 	const [feedItems, setFeedItems] = useState([]);
@@ -18,19 +18,30 @@ function NewsFeed({ title='Новости', pageSize: limit, query, profile, sim
 	})
 	const [loading, setLoading] = useState(true)
 	
-	const getFeed = (loadOffset=null) => {
-		setLoading(true)
-		return fetchLatest(loadOffset == null ? offset : loadOffset, limit)
-		.then(newItems => {
-			console.log(newItems);
-			setLoading(false)
-			if (newItems.length == 0) {
-				setHasMore(false)
-				return [];
-			}
-			return newItems
-		})
-	}
+	const getFeed = useCallback(async (loadOffset=null) => {
+		try {
+			setLoading(true);
+			// Определяем актуальный offset
+			const currentOffset = loadOffset ?? offset;
+			
+			// Выбираем нужный метод загрузки
+			const newItems = await (similarId 
+				? getSimilar(similarId, currentOffset, limit)
+				: getLatest(currentOffset, limit));
+			
+			console.log("Loaded items:", newItems);
+
+			// Обновляем состояние только если компонент не размонтирован
+			setHasMore(newItems.length > 0);
+			return newItems;
+		} catch (error) {
+			console.error("Error loading feed:", error);
+			return [];
+		} finally {
+			setLoading(false); // Гарантированно выключаем лоадер
+		}
+	}, [similarId, offset, limit])
+
 	const init = () => {
 		scrollTo(0)
 		getFeed(0)
@@ -97,7 +108,14 @@ function NewsFeed({ title='Новости', pageSize: limit, query, profile, sim
 		if (feedState?.scrollY != null) {
 			setScrollY(feedState.scrollY)
 		}
-	}, [feedState, limit, query, profile, similarId])
+	}, [similarId, feedState, limit, query, profile])
+
+	useEffect(() => {
+		setFeedItems([]);
+		setHasMore(true);
+		setOffset(0);
+		setLoading(true);
+	}, [similarId]);
 
 	return ( 
 		<div {...props}>

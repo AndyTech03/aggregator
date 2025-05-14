@@ -61,6 +61,7 @@
 			<id>parser</id>
 			<properties>
 				<spring.profiles.active>parser</spring.profiles.active>
+<!--				Не сработало... <spring.main.web-application-type>NONE</spring.main.web-application-type>-->
 			</properties>
 		</profile>
 	</profiles>

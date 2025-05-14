@@ -1,47 +1,33 @@
 import { useEffect, useState } from "react"
-import fetchArticle from "../api/fetchArticle"
 import NotFoundPage from "./NotFound"
 import { Link, useNavigate, useNavigation, useParams } from "react-router-dom"
-import AddOrDelButton from "../components/AddOrDelButton"
-import useArray from "../hooks/useArray"
 import NewsFeed from "../components/NewsFeed"
+import { getItemFull } from "../api/rssItemsController"
+import AuthorLabel from "../components/AuthorLabel"
+import DateLabel from "../components/DateLabel"
+import ChanelLabel from "../components/ChanelLabel"
+import CategoriesList from "../components/CategoriesList"
+import LikesViewsLabel from "../components/LikesViewsLabel"
 
 function ArticlePage({ ...props }) {
 	const similarCount = 10;
 	const params = useParams()
 	const newsId = params?.id
 	const navigate = useNavigate()
-	const [item, setItem] = useState(null)
+	const [news, setNews] = useState(null)
 	const [state, setState] = useState('loading')
 
-	const categoriesFilter = useArray({
-		cookiesName: 'categoriesFilter',
-		defaultValue: [],
-		useStorage: true,
-		global: true,
-	})
-	const authorsFilter = useArray({
-		cookiesName: 'authorsFilter',
-		defaultValue: [],
-		useStorage: true,
-		global: true,
-	})
-	const rssFeedsFilter = useArray({
-		cookiesName: 'rssFeedsFilter',
-		defaultValue: [],
-		useStorage: true,
-		global: true,
-	})
-	
 	useEffect(() => {
-		fetchArticle(newsId)
+		getItemFull(newsId)
 		.then(found => {
-			if (found?.news == null) {
+			if (found == null) {
 				setState('notFound')
 				return
 			}
-			setItem(found)
+			setNews(found)
 			setState('found')
+		}).catch(() => {
+			setState('error')
 		})
 	}, [params.id])
 
@@ -55,11 +41,15 @@ function ArticlePage({ ...props }) {
 			</div>
 		)
 	}
-	const news = item.news;
-	const date = new Date(news.date)
-	const originUri = news.uri
-	const author = news.author
-	const rssFeed = news.rssFeed
+	const author = news?.author
+	const title = news?.title
+	const description = news?.description
+	const categories = news?.categories?.map(i => i.trim()).filter(i => i.length != 0)
+	const rssFeedTitle = news?.feedUrl?.match(/(?<=\:\/\/)(.*?)(?=\/|$)/g)[0]
+	const date = new Date(news?.date)
+	const uri = news?.uri
+	const likesCount = news?.likesCount ?? 0
+	const viewsCount = news?.viewsCount ?? 0
 	return ( 
 		<div {...props}>
 			<button onClick={() => navigate(-1)}>Back</button>
@@ -67,33 +57,28 @@ function ArticlePage({ ...props }) {
 			<span>
 				{news.title}
 				[
-					<Link to={originUri} onClick={() => alert('click')}>открыть</Link>
+					<Link to={uri} onClick={() => {}}>открыть</Link>
 				]
 			</span>
-			<div>
-				{news.categories.map((category, key) => 
-					<span key={key}>
-						<b>#{category.title}</b>
-						{categoriesFilter != null &&
-							<AddOrDelButton item={category.id} itemsArray={categoriesFilter}/>
-						}
+			{state == 'loading' ?
+				<>
+					Loading...
+				</> :
+			state == 'error' ?
+				<>
+					Error!
+				</> :
+				<>
+					<CategoriesList categories={categories} enableFilter={true} />
+					<p dangerouslySetInnerHTML={{__html: news.description}}/>
+					<span>
+						<ChanelLabel rssFeedTitle={rssFeedTitle} enableFilter={true} />
+						<AuthorLabel author={author} enableFilter={true} />
+						<DateLabel date={date} />
 					</span>
-				)}
-			</div>
-			<p dangerouslySetInnerHTML={{__html: news.description}}/>
-			<span>
-				<b>@{author.username}</b>
-				{authorsFilter != null &&
-					<AddOrDelButton item={author.id} itemsArray={authorsFilter}/>
-				}
-				<br />
-				{date.toLocaleString()}
-				<br />
-				{rssFeed.title}
-				{rssFeedsFilter != null &&
-					<AddOrDelButton item={rssFeed.id} itemsArray={rssFeedsFilter}/>
-				}
-			</span>
+					<LikesViewsLabel likesCount={likesCount} viewsCount={viewsCount} />
+				</>
+			}
 			<hr />
 			<br />
 			<NewsFeed title="Похожие Новости" pageSize={similarCount} similarId={newsId} />

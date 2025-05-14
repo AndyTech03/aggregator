@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import routes from "../routes";
 import { getItem } from "../api/rssItemsController";
+import ChanelLabel from "./ChanelLabel";
+import AuthorLabel from "./AuthorLabel";
+import DateLabel from "./DateLabel";
+import CategoriesList from "./CategoriesList";
+import LikesViewsLabel from "./LikesViewsLabel";
 
 function FeedItem({ item, saveFeedState, ...props }) {
 	const [news, setNews] = useState({...item})
@@ -33,9 +38,9 @@ function FeedItem({ item, saveFeedState, ...props }) {
 				{title}
 				[
 					<Link to={routes.ARTICLE_PAGE.replace(':id', item.id)} 
-					onClick={() => {saveFeedState(); alert('click')}}>читать</Link>|
+					onClick={() => {saveFeedState(); }}>читать</Link>|
 					<Link to={uri} 
-					onClick={() => {saveFeedState(); alert('click')}}>открыть</Link>
+					onClick={() => {saveFeedState(); }}>открыть</Link>
 				]
 			</span>
 			{loading == 'loading' ? 
@@ -47,34 +52,13 @@ function FeedItem({ item, saveFeedState, ...props }) {
 					Error!
 				</> :
 				<>
-					<div>
-						<>{likesCount} likes</>
-						<br />
-						<>{viewsCount} views</>
-					</div>
-					<div>
-						{categories?.map((category, key) => 
-							<span key={key}>
-								"{category}"{key == categories.length -1 ? "" : ", "}
-							</span>
-						)}
-					</div>
+					<CategoriesList categories={categories} />
 					<span>
-						{rssFeedTitle != null ?
-							<>Канал: {rssFeedTitle}</> :
-							<>Нет данных</>
-						}
-						<br />
-						{author != null && author != '' ?
-							<>Автор: {author}</> :
-							<>Аноним</>
-						}
-						<br />
-						{date != null ?
-							<>{date.toLocaleString()}</> :
-							<>Нет данных</>
-						}
+						<ChanelLabel rssFeedTitle={rssFeedTitle} />
+						<AuthorLabel author={author} />
+						<DateLabel date={date} />
 					</span>
+					<LikesViewsLabel likesCount={likesCount} viewsCount={viewsCount} />
 				</>
 			}
 			

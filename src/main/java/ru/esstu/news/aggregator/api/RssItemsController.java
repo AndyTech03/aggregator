@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.esstu.news.aggregator.api.dto.IdRequest;
 import ru.esstu.news.aggregator.api.dto.OffsetLimitRequest;
+import ru.esstu.news.aggregator.api.dto.SimilarRequest;
+import ru.esstu.news.aggregator.repos.dto.RssItemFull;
 import ru.esstu.news.aggregator.repos.dto.RssItemHeader;
 import ru.esstu.news.aggregator.repos.RssItemsRepo;
 import ru.esstu.news.aggregator.repos.dto.RssItemShort;
@@ -27,11 +29,11 @@ public class RssItemsController {
         this.rssItemsRepo = rssItemsService.getRepo();
     }
 
-    @PostMapping("/latest")
-    public List<RssItemHeader> findLatest(
+    @PostMapping("/getLatest")
+    public List<RssItemHeader> getLatest(
             @RequestBody OffsetLimitRequest body
     ) {
-        System.out.println("findLatest(body="+ body +");");
+        System.out.println("getLatest(body="+ body +");");
         long total = rssItemsRepo.count();
         if (body.offset >= total) {
             throw new ResponseStatusException(
@@ -39,13 +41,30 @@ public class RssItemsController {
                     "Offset exceeds total records: " + total
             );
         }
-        return rssItemsRepo.findLatest(body.limit, body.offset);
+        return rssItemsRepo.getLatest(body.limit, body.offset);
     }
+
     @PostMapping("/getItem")
     public Optional<RssItemShort> getItem(
             @RequestBody IdRequest body
     ) {
         System.out.println("getItem(body="+ body +");");
         return rssItemsRepo.getRssItem(body.id);
+    }
+
+    @PostMapping("/getItemFull")
+    public Optional<RssItemFull> getItemFull(
+            @RequestBody IdRequest body
+    ) {
+        System.out.println("getItemFull(body="+ body +");");
+        return rssItemsRepo.getItemFull(body.id);
+    }
+
+    @PostMapping("/getSimilar")
+    public List<RssItemHeader> getSimilar(
+            @RequestBody SimilarRequest body
+    ) {
+        System.out.println("getSimilar(body="+ body +");");
+        return rssItemsRepo.getSimilar(body.similarId, body.limit, body.offset);
     }
 }
