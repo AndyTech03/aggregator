@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 //import org.springframework.ai.openai.api.OpenAiApi;
 //import org.springframework.ai.retry.RetryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import ru.esstu.news.aggregator.models.RssItem;
 import ru.esstu.news.aggregator.repos.RssItemsRepo;
@@ -22,6 +21,7 @@ public class RssItemsService {
 //    OpenAiApi openAiApi;
 //    OpenAiEmbeddingModel embeddingModel;
     RssItemsRepo rssItemsRepo;
+
 
     @Autowired
     public RssItemsService(RssItemsRepo rssItemsRepo) {
@@ -41,6 +41,10 @@ public class RssItemsService {
         this.rssItemsRepo = rssItemsRepo;
     }
 
+
+    public RssItemsRepo getRepo() {
+        return rssItemsRepo;
+    }
     /**
      * Проверяет наличие похожих записей по ненулевым полям.
      * Если записей нет — сохраняет новую.

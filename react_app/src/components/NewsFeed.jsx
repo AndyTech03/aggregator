@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import FeedItem from "./FeedItem";
 import RefreshWidget from "./RefreshWidget";
 import useValue from "../hooks/useValue";
-import fetchFeed from "../api/fetchFeed";
+import { fetchLatest } from "../api/rssItemsController";
 
-function NewsFeed({ title='Новости', pageSize, query, profile, similarId, ...props }) {
+function NewsFeed({ title='Новости', pageSize: limit, query, profile, similarId, ...props }) {
 	const titleRef = useRef(null)
 	const bottomRef = useRef(null)
 	const [feedItems, setFeedItems] = useState([]);
@@ -20,8 +20,9 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similarId,
 	
 	const getFeed = (loadOffset=null) => {
 		setLoading(true)
-		return fetchFeed(loadOffset == null ? offset : loadOffset, pageSize, similarId)
+		return fetchLatest(loadOffset == null ? offset : loadOffset, limit)
 		.then(newItems => {
+			console.log(newItems);
 			setLoading(false)
 			if (newItems.length == 0) {
 				setHasMore(false)
@@ -35,11 +36,11 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similarId,
 		getFeed(0)
 		.then((newFeed) => {
 			setFeedItems(newFeed)
-			setOffset(pageSize)
+			setOffset(limit)
 		})
 	}
 	const next = () => {
-		setOffset(prev => prev + pageSize)
+		setOffset(prev => prev + limit)
 		append()
 	}
 	const scrollTo = () => {
@@ -96,7 +97,7 @@ function NewsFeed({ title='Новости', pageSize, query, profile, similarId,
 		if (feedState?.scrollY != null) {
 			setScrollY(feedState.scrollY)
 		}
-	}, [feedState, pageSize, query, profile, similarId])
+	}, [feedState, limit, query, profile, similarId])
 
 	return ( 
 		<div {...props}>

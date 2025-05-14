@@ -5,3 +5,7 @@ export default {
 	SEARCH_PAGE: "/search",
 	ARTICLE_PAGE: '/article/:id',
 }
+
+
+
+export const apiHost = 'http://localhost:8080/api'

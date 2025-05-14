@@ -1,38 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import routes from "../routes";
-import fetchNews from "../api/fetchNews";
-import fetchLikes from "../api/fetchLikes";
-import fetchViews from "../api/fetchViews";
+import { getItem } from "../api/rssItemsController";
 
 function FeedItem({ item, saveFeedState, ...props }) {
 	const [news, setNews] = useState({...item})
-	const [views, setViews] = useState(null)
-	const [likes, setLikes] = useState(null)
+	const [loading, setLoading] = useState('loading')
 
 	useEffect(() => {
 		const newsId = item.id
-		fetchNews(newsId)
+		getItem(newsId)
 		.then((found) => {
 			setNews(found)
-		})
-		fetchViews(newsId)
-		.then((found) => {
-			setViews(found)
-		})
-		fetchLikes(newsId)
-		.then((found) => {
-			setLikes(found)
+			setLoading('complied')
+		}).catch(() => {
+			setLoading('error')
 		})
 	}, [item])
 
 	const author = news?.author
-	const title = news?.title
-	const description = news?.description
-	const categories = news?.categories
-	const rssFeed = news?.rssFeed
+	const title = news?.title ?? item.title
+	const categories = news?.categories?.map(i => i.trim()).filter(i => i.length != 0)
+	const rssFeedTitle = news?.feedUrl?.match(/(?<=\:\/\/)(.*?)(?=\/|$)/g)[0]
 	const date = new Date(news?.date)
 	const uri = news?.uri
+	const likesCount = news?.likesCount ?? 0
+	const viewsCount = news?.viewsCount ?? 0
 	return ( 
 		<div {...props}>
 			<hr />
@@ -45,39 +38,46 @@ function FeedItem({ item, saveFeedState, ...props }) {
 					onClick={() => {saveFeedState(); alert('click')}}>открыть</Link>
 				]
 			</span>
-			<div>
-				{likes != null ?
-					<>{likes.filter(i => i.sign == 'like').length} likes</> :
-					<>loading...</>
-				} <br />
-				{views != null ? 
-					<>{views.length} views</> :
-					<>loading...</>
-				}
-			</div>
-			<div>
-				{categories?.map((category, key) => 
-					<span key={key}>
-						<b>#{category}</b>
+			{loading == 'loading' ? 
+				<>
+					Loading...
+				</> :
+			loading == 'error' ?
+				<>
+					Error!
+				</> :
+				<>
+					<div>
+						<>{likesCount} likes</>
+						<br />
+						<>{viewsCount} views</>
+					</div>
+					<div>
+						{categories?.map((category, key) => 
+							<span key={key}>
+								"{category}"{key == categories.length -1 ? "" : ", "}
+							</span>
+						)}
+					</div>
+					<span>
+						{rssFeedTitle != null ?
+							<>Канал: {rssFeedTitle}</> :
+							<>Нет данных</>
+						}
+						<br />
+						{author != null && author != '' ?
+							<>Автор: {author}</> :
+							<>Аноним</>
+						}
+						<br />
+						{date != null ?
+							<>{date.toLocaleString()}</> :
+							<>Нет данных</>
+						}
 					</span>
-				)}
-			</div>
-			<span>
-				{author != null ?
-					<b>@{author.username}</b> :
-					<b>loading...</b>
-				}
-				<br />
-				{date != null ?
-					<>{date.toLocaleString()}</> :
-					<>loading...</>
-				}
-				<br />
-				{rssFeed != null ?
-					<>{rssFeed.title}</> :
-					<>loading...</>
-				}
-			</span>
+				</>
+			}
+			
 		</div>
 	 );
 }
