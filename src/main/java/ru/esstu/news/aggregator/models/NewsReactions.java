@@ -1,23 +1,25 @@
 package ru.esstu.news.aggregator.models;
 
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "news_likes")
-public class NewsLikes {
+@Table(name = "news_reactions")
+public class NewsReactions {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private UUID userId;
     private UUID newsId;
     @Enumerated(EnumType.ORDINAL)
-    private NewsLikeLabel label;
+    private NewsReactionType type;
+    private Date likeDate;
+    private Date unlikeDate;
 
-    public NewsLikes() {
+    public NewsReactions() {
     }
 
     public UUID getId() {
@@ -44,20 +46,36 @@ public class NewsLikes {
         this.newsId = newsId;
     }
 
-    public NewsLikeLabel getLabel() {
-        return label;
+    public NewsReactionType getType() {
+        return type;
     }
 
-    public void setLabel(NewsLikeLabel label) {
-        this.label = label;
+    public void setType(NewsReactionType type) {
+        this.type = type;
+    }
+
+    public Date getLikeDate() {
+        return likeDate;
+    }
+
+    public void setLikeDate(Date likeDate) {
+        this.likeDate = likeDate;
+    }
+
+    public Date getUnlikeDate() {
+        return unlikeDate;
+    }
+
+    public void setUnlikeDate(Date unlikeDate) {
+        this.unlikeDate = unlikeDate;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        NewsLikes newsLikes = (NewsLikes) o;
-        return Objects.equals(id, newsLikes.id);
+        NewsReactions newsReactions = (NewsReactions) o;
+        return Objects.equals(id, newsReactions.id);
     }
 
     @Override
@@ -71,7 +89,7 @@ public class NewsLikes {
                 "id=" + id +
                 ", userId=" + userId +
                 ", newsId=" + newsId +
-                ", label=" + label +
+                ", label=" + type +
                 '}';
     }
 }

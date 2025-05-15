@@ -64,6 +64,12 @@
 <!--				Не сработало... <spring.main.web-application-type>NONE</spring.main.web-application-type>-->
 			</properties>
 		</profile>
+		<profile>
+			<id>faker</id>
+			<properties>
+				<spring.profiles.active>faker</spring.profiles.active>
+			</properties>
+		</profile>
 	</profiles>
 	<dependencies>
 <!--		<dependency>-->
@@ -87,6 +93,12 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.17.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.javafaker</groupId>
+			<artifactId>javafaker</artifactId>
+			<version>0.15</version>
 		</dependency>
 
 		<dependency>

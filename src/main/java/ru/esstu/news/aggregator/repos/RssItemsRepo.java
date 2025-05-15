@@ -43,11 +43,11 @@ public interface RssItemsRepo extends JpaRepository<RssItem, UUID> {
                     i.feedUrl,
                     coalesce(i.publishedDate, i.parsedDate),
                     i.uri,
-                    (SELECT COUNT(l)
-                        FROM NewsLikes l
+                    (SELECT COUNT(r)
+                        FROM NewsReactions r
                         WHERE
-                            l.newsId = i.id AND
-                            l.label = ru.esstu.news.aggregator.models.NewsLikeLabel.LIKE),
+                            r.newsId = i.id AND
+                            r.type = ru.esstu.news.aggregator.models.NewsReactionType.LIKE),
                     (SELECT COUNT(v)
                         FROM NewsViews v
                         WHERE v.newsId = i.id)
@@ -71,11 +71,11 @@ public interface RssItemsRepo extends JpaRepository<RssItem, UUID> {
                     i.feedUrl,
                     coalesce(i.publishedDate, i.parsedDate),
                     i.uri,
-                    (SELECT COUNT(l)
-                        FROM NewsLikes l
+                    (SELECT COUNT(r)
+                        FROM NewsReactions r
                         WHERE
-                            l.newsId = i.id AND
-                            l.label = ru.esstu.news.aggregator.models.NewsLikeLabel.LIKE),
+                            r.newsId = i.id AND
+                            r.type = ru.esstu.news.aggregator.models.NewsReactionType.LIKE),
                     (SELECT COUNT(v)
                         FROM NewsViews v
                         WHERE v.newsId = i.id)

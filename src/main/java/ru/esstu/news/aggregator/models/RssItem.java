@@ -7,9 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Entity
-@Table(
-        name = "rss_items"
-)
+@Table(name = "rss_items")
 public class RssItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

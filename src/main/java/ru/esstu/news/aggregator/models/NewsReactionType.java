@@ -1,6 +1,6 @@
 package ru.esstu.news.aggregator.models;
 
-public enum NewsLikeLabel {
+public enum NewsReactionType {
     LIKE,
     DISLIKE,
     NONE,
