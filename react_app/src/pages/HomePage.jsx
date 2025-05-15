@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
+import TopNewsList from "../components/TopNewsList";
 
 function HomePage({ ...props }) {
 	const user = useContext(UserContext)
@@ -7,6 +8,7 @@ function HomePage({ ...props }) {
 		<div {...props}>
 			{user.userId} <br />
 			{user.profile}
+			<TopNewsList />
 		</div>
 	);
 }

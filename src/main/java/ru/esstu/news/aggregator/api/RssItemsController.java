@@ -48,7 +48,6 @@ public class RssItemsController {
     public Optional<RssItemShort> getItem(
             @RequestBody IdRequest body
     ) {
-        System.out.println("getItem(body="+ body +");");
         return rssItemsRepo.getRssItem(body.id);
     }
 
@@ -56,7 +55,6 @@ public class RssItemsController {
     public Optional<RssItemFull> getItemFull(
             @RequestBody IdRequest body
     ) {
-        System.out.println("getItemFull(body="+ body +");");
         return rssItemsRepo.getItemFull(body.id);
     }
 

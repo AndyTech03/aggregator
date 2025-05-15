@@ -9,6 +9,7 @@ import ru.esstu.news.aggregator.models.RssItem;
 import ru.esstu.news.aggregator.repos.dto.RssItemShort;
 import ru.esstu.news.aggregator.repos.dto.RssItem_IdParsedDate_Dto;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -124,5 +125,40 @@ public interface RssItemsRepo extends JpaRepository<RssItem, UUID> {
             @Param("offset") int offset
     );
 
-
+    @Query(value = """
+            WITH recent AS (
+                SELECT
+                    nv.news_id,
+                    COUNT(*) FILTER (WHERE
+                        nv.date >= :date AND
+                        nv.date <= (:date)::timestamp + interval '24 hours'
+                        ) AS views,
+                    COUNT(*) FILTER (WHERE
+                        nr.type = 0 AND
+                        nr.like_date >= :date AND
+                        nr.like_date <= (:date)::timestamp + interval '24 hours'
+                        ) AS likes,
+                    COUNT(*) FILTER (WHERE
+                        nr.type = 1 AND
+                        nr.unlike_date >= :date AND
+                        nr.unlike_date <= (:date)::timestamp + interval '24 hours'
+                    ) AS dislikes
+                FROM news_views nv
+                LEFT JOIN news_reactions nr
+                    ON nv.news_id = nr.news_id
+                GROUP BY nv.news_id
+             )
+             SELECT
+                r.news_id as id,
+                ni.title
+             FROM recent r
+                left join rss_items ni
+                on ni.id = r.news_id
+             ORDER BY (1.0 * r.views + 3.0 * r.likes - 2.0 * r.dislikes) DESC
+             OFFSET :offset
+             LIMIT :limit;
+            """, nativeQuery = true)
+    List<RssItemHeader> getTopNews(
+            int offset, int limit, Date date
+    );
 }
