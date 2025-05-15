@@ -2,6 +2,7 @@ package ru.esstu.news.aggregator.runners;
 
 import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ public class FakeDataGenerator implements CommandLineRunner {
     private final Faker faker = new Faker();
     private final Random rand = new Random();
 
+    @Autowired
     public FakeDataGenerator(NewsUsersRepo usersRepo, RssItemsRepo itemsRepo, NewsViewsRepo viewsRepo, NewsReactionsRepo reactionsRepo) {
         this.usersRepo = usersRepo;
         this.itemsRepo = itemsRepo;
@@ -37,7 +39,6 @@ public class FakeDataGenerator implements CommandLineRunner {
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
         System.out.println(">>> Faker Generator started under profile 'faker'");
 
@@ -47,21 +48,18 @@ public class FakeDataGenerator implements CommandLineRunner {
         System.out.println(">>> Generating completed. Exiting.");
         System.exit(0);
     }
-
+    @Transactional
     private void generateUsers(int count) {
         System.out.println(">>> generateUsers");
-        List<NewsUsers> users = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             NewsUsers u = new NewsUsers();
             u.setUsername(faker.name().username());
             u.setPassword(faker.internet().password());
             u.setAge(rand.nextInt(60) + 18);
             u.setSex(rand.nextBoolean());
-            users.add(u);
+            usersRepo.save(u);
         }
-        usersRepo.saveAll(users);
     }
-
     private void generateInteractions() {
         System.out.println(">>> generateInteractions");
         List<NewsUsers> users = usersRepo.findAll();
@@ -174,6 +172,7 @@ public class FakeDataGenerator implements CommandLineRunner {
         executor.shutdown();
     }
 
+    @Transactional
     private void assignViewsAndReactions(CountDownLatch latch, List<NewsUsers> users, List<RssItem> items, int maxPerUser) {
         if (items.isEmpty()) return;
         for (NewsUsers u : users) {
