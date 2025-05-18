@@ -161,4 +161,75 @@ public interface RssItemsRepo extends JpaRepository<RssItem, UUID> {
     List<RssItemHeader> getTopNews(
             int offset, int limit, Date date
     );
+
+    @Query(value = """
+            WITH recent AS (
+                SELECT
+                    nv.news_id,
+                    COUNT(*) FILTER (
+                        WHERE nv.date >= :date
+                          AND nv.date <= (:date)::timestamp + interval '24 hours'
+                    ) AS views,
+                    COUNT(*) FILTER (
+                        WHERE nr.type = 0
+                          AND nr.like_date >= :date
+                          AND nr.like_date <= (:date)::timestamp + interval '24 hours'
+                    ) AS likes,
+                    COUNT(*) FILTER (
+                        WHERE nr.type = 1
+                          AND nr.unlike_date >= :date
+                          AND nr.unlike_date <= (:date)::timestamp + interval '24 hours'
+                    ) AS dislikes
+                FROM news_views nv
+                LEFT JOIN news_reactions nr
+                    ON nv.news_id = nr.news_id
+                GROUP BY nv.news_id
+            ),
+            scored AS (
+                SELECT
+                    r.news_id,
+                    (1.0 * r.views + 3.0 * r.likes - 2.0 * r.dislikes) AS score
+                FROM recent r
+            ),
+            category_scores AS (
+                SELECT
+                    unnest(ni.categories) AS category,
+                    SUM(s.score) AS total_score,
+                    COUNT(*) AS news_count
+                FROM scored s
+                JOIN rss_items ni ON ni.id = s.news_id
+                GROUP BY category
+            )
+            SELECT
+                category
+            FROM category_scores
+            where category <> ''
+            ORDER BY total_score * news_count DESC
+            OFFSET :offset
+            LIMIT :limit;
+            """, nativeQuery = true)
+    List<String> getTopCategories(
+            int offset, int limit, Date date
+    );
+
+    @Query(
+            value = """
+                    SELECT
+                        i.id AS id,
+                        i.title AS title
+                    FROM rss_items i
+                    ORDER BY (
+                        similarity(i.title, :query) * 2 +
+                        COALESCE(similarity(i.description_flat, :query), 0) * 5 +
+                        COALESCE(similarity(i.categories_flat, :query), 0) * 2 +
+                        COALESCE(similarity(i.categories_flat, (:categories)::text), 0) * 3 +
+                        COALESCE(similarity(i.author, :query), 0) +
+                        COALESCE(similarity(i.feed_url, :query), 0)
+                    ) DESC
+                    LIMIT :limit
+                    OFFSET :offset
+                    """,
+            nativeQuery = true
+    )
+    List<RssItemHeader> search(String query, List<String> categories, int limit, int offset);
 }

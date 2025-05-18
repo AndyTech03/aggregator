@@ -37,7 +37,7 @@ public class RssParser {
     }
 
     public void parseAllRssFeeds(SubscribeRuParser parser) {
-        if (false)
+        if (true)
             parser.parseRssFeeds();
         List<RssFeed> feeds = rssFeedsService.findAll();
         CountDownLatch latch = new CountDownLatch(feeds.size()*2);

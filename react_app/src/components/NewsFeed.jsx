@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import FeedItem from "./FeedItem";
 import RefreshWidget from "./RefreshWidget";
 import useValue from "../hooks/useValue";
-import { getLatest, getSimilar } from "../api/rssItemsController";
+import { getLatest, getSimilar, search } from "../api/rssItemsController";
 
-function NewsFeed({ title='Новости', pageSize: limit, query, profile, similarId=null, ...props }) {
+function NewsFeed({ title='Новости', pageSize: limit, query, categoriesFilter, profile, similarId=null, ...props }) {
 	const titleRef = useRef(null)
 	const bottomRef = useRef(null)
 	const [feedItems, setFeedItems] = useState([]);
@@ -25,7 +25,10 @@ function NewsFeed({ title='Новости', pageSize: limit, query, profile, sim
 			const currentOffset = loadOffset ?? offset;
 			
 			// Выбираем нужный метод загрузки
-			const newItems = await (similarId 
+			const newItems = await (
+				query != null || categoriesFilter != null ?
+				search(query, categoriesFilter.items, currentOffset, limit) :
+				similarId 
 				? getSimilar(similarId, currentOffset, limit)
 				: getLatest(currentOffset, limit));
 			
@@ -108,7 +111,7 @@ function NewsFeed({ title='Новости', pageSize: limit, query, profile, sim
 		if (feedState?.scrollY != null) {
 			setScrollY(feedState.scrollY)
 		}
-	}, [similarId, feedState, limit, query, profile])
+	}, [similarId, feedState, limit, query, categoriesFilter, profile])
 
 	useEffect(() => {
 		setFeedItems([]);

@@ -28,4 +28,11 @@ public class TrendsController {
     ) {
         return rssItemsRepo.getTopNews(request.offset, request.limit, request.date);
     }
+
+    @PostMapping("/getTopCategories")
+    public List<String> getTopCategories(
+            @RequestBody DatePagingRequest request
+    ) {
+        return rssItemsRepo.getTopCategories(request.offset, request.limit, request.date);
+    }
 }

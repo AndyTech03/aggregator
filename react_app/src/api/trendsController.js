@@ -18,3 +18,20 @@ export async function getTopNews(offset, limit, date) {
 		})
 	}).then((response) => response.json())
 }
+
+export async function getTopCategories(offset, limit, date) {
+	let dayDate = new Date(date)
+	dayDate.setHours(0, 0, 0, 0)
+	return fetch(`${host}/getTopCategories`, {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			offset, 
+			limit,
+			date: dayDate,
+		})
+	}).then((response) => response.json())
+}

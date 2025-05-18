@@ -42,7 +42,7 @@ public class FakeDataGenerator implements CommandLineRunner {
     public void run(String... args) {
         System.out.println(">>> Faker Generator started under profile 'faker'");
 
-        generateUsers(1000);
+//        generateUsers(1000);
         generateInteractions();
 
         System.out.println(">>> Generating completed. Exiting.");

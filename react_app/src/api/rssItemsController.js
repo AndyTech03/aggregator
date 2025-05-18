@@ -55,3 +55,19 @@ export async function getSimilar(similarId, offset, limit) {
 		})
 	}).then((response) => response.json())
 }
+
+export async function search(query, categories, offset, limit) {
+	return fetch(`${host}/search`, {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			query,
+			categories,
+			offset, 
+			limit,
+		})
+	}).then((response) => response.json())
+}

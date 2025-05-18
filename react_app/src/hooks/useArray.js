@@ -29,7 +29,9 @@ export default function useArray({
 	const contains = (item) => {
 		if (disabled)
 			throw new Error(`${cookiesName} disabled now!`)
-		items?.includes(item)
+		if (items == null)
+			return false
+		return items.includes(item)
 	}
 	
 	return {items, addItem, delItem, setItems, saveItems, contains}

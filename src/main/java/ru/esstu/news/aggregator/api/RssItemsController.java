@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.esstu.news.aggregator.api.dto.IdRequest;
 import ru.esstu.news.aggregator.api.dto.OffsetLimitRequest;
+import ru.esstu.news.aggregator.api.dto.SearchRequest;
 import ru.esstu.news.aggregator.api.dto.SimilarRequest;
 import ru.esstu.news.aggregator.repos.dto.RssItemFull;
 import ru.esstu.news.aggregator.repos.dto.RssItemHeader;
@@ -64,5 +65,13 @@ public class RssItemsController {
     ) {
         System.out.println("getSimilar(body="+ body +");");
         return rssItemsRepo.getSimilar(body.similarId, body.limit, body.offset);
+    }
+
+    @PostMapping("/search")
+    public List<RssItemHeader> search(
+            @RequestBody SearchRequest request
+    ) {
+        System.out.println("getSimilar(body="+ request +");");
+        return rssItemsRepo.search(request.query, request.categories, request.limit, request.offset);
     }
 }

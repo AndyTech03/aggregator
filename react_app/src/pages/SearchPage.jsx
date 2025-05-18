@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import useValue from "../hooks/useValue";
 import NewsFeed from "../components/NewsFeed";
 import useArray from "../hooks/useArray";
+import TopCategoriesSelector from "../components/TopCategoriesSelector";
 
 function SearchPage({ ...props }) {
 	const pageSize = 10;
@@ -41,12 +42,14 @@ function SearchPage({ ...props }) {
 			{rssFeedsFilter?.items?.map((rssFeed, idx) => 
 				<span key={'rssFeed' + idx + rssFeed}>"{rssFeed}"; </span>
 			)} <br />
+			<TopCategoriesSelector categoriesFilter={categoriesFilter} />
 			<input type="search"
 				placeholder="Поиск..."
 				value={query} onChange={(e)=> setQuery(e.target.value)} 
 				/>
 			<NewsFeed
 				query={query}
+				categoriesFilter={categoriesFilter}
 				pageSize={pageSize}
 				/>
 		</div>
