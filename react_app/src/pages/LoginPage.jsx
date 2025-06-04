@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
+import Header from "../components/Header";
 
 function LoginPage({logInUser, ...props}) {
 	const user = useContext(UserContext)
@@ -7,6 +8,7 @@ function LoginPage({logInUser, ...props}) {
 	const [password, setPassword] = useState('')
 	return ( 
 		<div {...props}>
+			<Header/>
 			{user.userId} <br />
 			{user.profile}
 			<br />

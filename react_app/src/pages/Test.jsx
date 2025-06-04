@@ -103,6 +103,7 @@ function Test({ ...props }) {
 		return <div {...props}>Ничего не найдено...</div>
 	return ( 
 		<div {...props}>
+			<Header/>
 			<div>{JSON.stringify(location.state)}</div>
 			<div>{JSON.stringify(categoriesFilter.items)}</div>
 			<div>{JSON.stringify(rssFeedsFilter.items)}</div>

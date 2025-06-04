@@ -3,6 +3,7 @@ import useValue from "../hooks/useValue";
 import NewsFeed from "../components/NewsFeed";
 import useArray from "../hooks/useArray";
 import TopCategoriesSelector from "../components/TopCategoriesSelector";
+import Header from "../components/Header";
 
 function SearchPage({ ...props }) {
 	const pageSize = 10;
@@ -33,6 +34,7 @@ function SearchPage({ ...props }) {
 
 	return ( 
 		<div>
+			<Header/>
 			{authorsFilter?.items?.map((author, idx) => 
 				<span key={'author' + idx + author}>"{author}"; </span>
 			)} <br />

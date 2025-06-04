@@ -9,12 +9,12 @@ import ChanelLabel from "../components/ChanelLabel"
 import CategoriesList from "../components/CategoriesList"
 import LikesViewsLabel from "../components/LikesViewsLabel"
 import ReactionsButtons from "../components/ReactionsButtons"
+import Header from "../components/Header"
 
 function ArticlePage({ ...props }) {
 	const similarCount = 10;
 	const params = useParams()
 	const newsId = params?.id
-	const navigate = useNavigate()
 	const [news, setNews] = useState(null)
 	const [state, setState] = useState('loading')
 
@@ -53,7 +53,7 @@ function ArticlePage({ ...props }) {
 	const viewsCount = news?.viewsCount ?? 0
 	return ( 
 		<div {...props}>
-			<button onClick={() => navigate(-1)}>Back</button>
+			<Header/>
 			<hr />
 			<span>
 				{news.title}
